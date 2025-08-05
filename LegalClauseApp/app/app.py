@@ -4,9 +4,8 @@ from rag_pipeline import RAGPipeline
 
 app = Flask(__name__)
 
-# Initialize RAGPipeline
-PDFS_DIR = "C:/Users/Ankit Prasad/Documents/GitHub/NFC4_THE_OVERFLOWS/LegalClauseApp/pdfs"
-rag_pipeline = RAGPipeline(PDFS_DIR)
+# Initialize RAGPipeline with the path to the FAISS index
+rag_pipeline = RAGPipeline(faiss_index_path="../faiss_index")
 
 @app.route('/')
 def index():

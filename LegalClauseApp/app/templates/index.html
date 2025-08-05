@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Legal Clause Generator</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { padding: 20px; }
+        .container { max-width: 900px; margin-top: 20px; }
+        textarea { min-height: 100px; }
+        .result-section { margin-top: 30px; border-top: 1px solid #eee; padding-top: 20px; }
+        .risk-low { color: green; font-weight: bold; }
+        .risk-medium { color: orange; font-weight: bold; }
+        .risk-high { color: red; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="mb-4">AI Legal Clause Generator</h1>
+
+        <div class="form-group">
+            <label for="promptInput">Enter Legal Intent / Prompt:</label>
+            <textarea class="form-control" id="promptInput" rows="4" placeholder="e.g., 'Draft a clause for intellectual property ownership in a software development agreement.'"></textarea>
+        </div>
+        <button class="btn btn-primary" id="generateBtn">Generate Clause</button>
+
+        <div id="results" class="result-section" style="display: none;">
+            <h2 class="mb-3">Generated Clause:</h2>
+            <pre id="generatedClause" class="bg-light p-3 border rounded"></pre>
+
+            <h3 class="mt-4">Risk Assessment:</h3>
+            <p>Risk Level: <span id="riskLevel"></span></p>
+            <p>Reasoning: <span id="riskReasoning"></span></p>
+
+            <h3 class="mt-4">Safer Alternatives:</h3>
+            <ul id="alternativesList" class="list-group"></ul>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('generateBtn').addEventListener('click', async () => {
+            const prompt = document.getElementById('promptInput').value;
+            if (!prompt) {
+                alert('Please enter a legal intent or prompt.');
+                return;
+            }
+
+            document.getElementById('generateBtn').disabled = true;
+            document.getElementById('generateBtn').textContent = 'Generating...';
+
+            try {
+                const response = await fetch('/generate_clause', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ prompt: prompt })
+                });
+
+                const data = await response.json();
+
+                document.getElementById('generatedClause').textContent = data.clause;
+                document.getElementById('riskLevel').textContent = data.risk_level;
+                document.getElementById('riskReasoning').textContent = data.reasoning;
+
+                // Apply risk level styling
+                const riskLevelSpan = document.getElementById('riskLevel');
+                riskLevelSpan.classList.remove('risk-low', 'risk-medium', 'risk-high');
+                if (data.risk_level === 'Low') {
+                    riskLevelSpan.classList.add('risk-low');
+                } else if (data.risk_level === 'Medium') {
+                    riskLevelSpan.classList.add('risk-medium');
+                } else if (data.risk_level === 'High') {
+                    riskLevelSpan.classList.add('risk-high');
+                }
+
+                const alternativesList = document.getElementById('alternativesList');
+                alternativesList.innerHTML = ''; // Clear previous alternatives
+                data.alternatives.forEach(alt => {
+                    const li = document.createElement('li');
+                    li.className = 'list-group-item';
+                    li.textContent = alt;
+                    alternativesList.appendChild(li);
+                });
+
+                document.getElementById('results').style.display = 'block';
+
+            } catch (error) {
+                console.error('Error:', error);
+                alert('An error occurred while generating the clause. Please try again.');
+            } finally {
+                document.getElementById('generateBtn').disabled = false;
+                document.getElementById('generateBtn').textContent = 'Generate Clause';
+            }
+        });
+    </script>
+</body>
+</html>
