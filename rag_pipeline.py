@@ -43,7 +43,14 @@ class RAGPipeline:
         for i, doc in enumerate(retrieved_chunks):
             prompt += f"{i+1}. {doc.page_content}\n"
 
-        prompt += "\n**Instructions:**\nDraft a new legal clause based on the user's intent and the provided examples. The clause should be clear, concise, and legally sound."
+        prompt += """
+**Instructions:**
+- Based solely on the user’s intent and the examples provided above, draft a clear, concise, and legally sound clause.
+- Retrieve supporting examples from your RAG index **only if** they directly illustrate or inform the user’s specific request.
+- Do **not** include any irrelevant or tangential fragments.
+- Attribute any borrowed language or structure from retrieved examples by noting “[Adapted from Example X]” in brackets.
+"""
+
 
         response = self.llm.invoke([HumanMessage(content=prompt)])
         return response.content

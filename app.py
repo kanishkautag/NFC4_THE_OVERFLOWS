@@ -1,4 +1,5 @@
 from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from rag_pipeline import RAGPipeline
 from fastapi.responses import FileResponse
@@ -6,7 +7,20 @@ from risk_assessor import RiskAssessor
 
 app = FastAPI()
 
+origins = [
+    "*" # Allows all origins for development. Restrict this in production!
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 # Initialize RAGPipeline with the path to the FAISS index
+
 rag_pipeline = RAGPipeline(faiss_index_path="faiss_index")
 risk_assessor = RiskAssessor()
 
@@ -20,9 +34,7 @@ class EvaluationResponse(BaseModel):
     source: str
     feedback_options: list[str]
 
-@app.get("/")
-def read_root():
-    return FileResponse('templates/index.html')
+
 
 @app.post("/evaluate", response_model=EvaluationResponse)
 def evaluate(request: ClauseRequest):
