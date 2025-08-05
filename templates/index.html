@@ -1,3 +1,4 @@
+<<<<<<< Updated upstream
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -238,3 +239,65 @@
     </script>
 </body>
 </html>
+=======
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Clause Generation and Risk Assessment</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="mb-4">Clause Generation and Risk Assessment</h1>
+        <div class="mb-3">
+            <label for="prompt" class="form-label">Enter your intent:</label>
+            <textarea class="form-control" id="prompt" rows="3"></textarea>
+        </div>
+        <button id="evaluate" class="btn btn-primary">Generate and Assess</button>
+        <button id="regenerate" class="btn btn-secondary" style="display: none;">Re-generate</button>
+        <hr>
+        <h2>Results</h2>
+        <div id="results"></div>
+    </div>
+
+    <script>
+        let lastPrompt = '';
+
+        async function getEvaluation(prompt) {
+            const response = await fetch("/evaluate", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ prompt })
+            });
+            const data = await response.json();
+            const resultsDiv = document.getElementById("results");
+            resultsDiv.innerHTML = `
+                <h4>Generated Clause</h4>
+                <p>${data.clause}</p>
+                <p><strong>Risk:</strong> ${data.risk}</p>
+                <p><strong>Classification:</strong> ${data.classification}</p>
+                <p><strong>Source:</strong> ${data.source}</p>
+                <div>
+                    <strong>Feedback:</strong>
+                    ${data.feedback_options.map(option => `<button class="btn btn-outline-secondary btn-sm me-2">${option}</button>`).join('')}
+                </div>
+            `;
+            document.getElementById("regenerate").style.display = "inline-block";
+        }
+
+        document.getElementById("evaluate").addEventListener("click", async () => {
+            const prompt = document.getElementById("prompt").value;
+            lastPrompt = prompt;
+            getEvaluation(prompt);
+        });
+
+        document.getElementById("regenerate").addEventListener("click", async () => {
+            getEvaluation(lastPrompt);
+        });
+    </script>
+</body>
+</html>
+>>>>>>> Stashed changes
