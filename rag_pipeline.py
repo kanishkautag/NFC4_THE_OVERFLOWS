@@ -48,6 +48,7 @@ class RAGPipeline:
 - Based solely on the user’s intent and the examples provided above, draft a clear, concise, and legally sound clause.
 - Retrieve supporting examples from your RAG index **only if** they directly illustrate or inform the user’s specific request.
 - Do **not** include any irrelevant or tangential fragments.
+- Do not give irrelevant references or contexts which are not related to the prompt/topic or arent covered in the corpus.
 - Attribute any borrowed language or structure from retrieved examples by noting “[Adapted from Example X]” in brackets.
 """
 
@@ -65,3 +66,14 @@ class RAGPipeline:
         metadata = first_chunk.metadata if hasattr(first_chunk, 'metadata') else {}
         source = metadata.get('source', 'Unknown')
         return metadata, source
+
+    def summarize_text(self, text: str) -> str:
+        """Summarizes the given text using the LLM."""
+        prompt = f"""
+        Please summarize the following text concisely and accurately.
+        Text:
+        {text}
+        Summary:
+        """
+        response = self.llm.invoke([HumanMessage(content=prompt)])
+        return response.content
